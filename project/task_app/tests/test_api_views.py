@@ -13,6 +13,10 @@ def detail_update_task(task):
     return reverse("task_app:retrieve-update-task", kwargs={"pk": task.id})
 
 
+def accept_task(task):
+    return reverse("task_app:accept-task", kwargs={"pk": task.id})
+
+
 class PublicTaskUserAPIViewTestCase(TestCase):
     """ Test Case for public task API"""
 
@@ -120,10 +124,11 @@ class PrivateTaskUserAPIViewTestCase(TestCase):
         self.assertEqual(self.task_1.accept, False)
 
         data = {
-            "accept": True
+            "accept": True,
+            "reason": "Reason test"
         }
 
-        url = detail_update_task(self.task_1)
+        url = accept_task(self.task_1)
 
         res = self.client.put(url, data=data, format="json")
 
@@ -132,6 +137,20 @@ class PrivateTaskUserAPIViewTestCase(TestCase):
         self.assertIn("description", res.data)
         self.assertIn("accept", res.data)
         self.assertEqual(True, res.data["accept"])
+
+    def test_accept_task_without_reason(self):
+        """Test that returns BAD_REQUEST, because it doesn't have the reason field"""
+        self.assertEqual(self.task_1.accept, False)
+
+        data = {
+            "accept": True,
+        }
+
+        url = accept_task(self.task_1)
+
+        res = self.client.put(url, data=data, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_accepted_task_unsuccessfully(self):
         """Test that you accept a task, but in this case is unsuccessfully"""
@@ -142,7 +161,7 @@ class PrivateTaskUserAPIViewTestCase(TestCase):
             "accept": True
         }
 
-        url = detail_update_task(self.task_3)
+        url = accept_task(self.task_3)
 
         res = self.client.put(url, data=data, format="json")
 

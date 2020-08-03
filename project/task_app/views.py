@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from task_app.pagination import TasPagination
 from task_app.permission import IsUserOwnerTAskAuthenticated
 from .models import TaskUser
-from .serializers import TaskSerializer
+from .serializers import TaskSerializer, AcceptTaskSerializer
 
 
 class TaskAPIView(generics.ListCreateAPIView):
@@ -42,3 +42,20 @@ class TaskRetrieveUpdateAPIView(generics.RetrieveUpdateDestroyAPIView):
         serializer.save()
 
         return Response(serializer.data)
+
+
+class TaskAcceptAPIView(generics.UpdateAPIView):
+    name = "accept-task"
+    queryset = TaskUser.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [IsUserOwnerTAskAuthenticated, ]
+    authentication_classes = [TokenAuthentication, ]
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.check_object_permissions(request, obj=instance)
+        serializer = AcceptTaskSerializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        task = serializer.save()
+        response_serializer = TaskSerializer(task)
+        return Response(response_serializer.data)
