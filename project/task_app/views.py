@@ -18,6 +18,18 @@ class TaskAPIView(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication, ]
     pagination_class = TasPagination
 
+    def get_queryset(self):
+        queryset = self.queryset
+
+        filters = {}
+
+        if self.request.GET.get("search"):
+            filters.update(description__icontains=self.request.GET.get("search"))
+
+        queryset = queryset.filter(**filters)
+
+        return queryset
+
     def create(self, request, *args, **kwargs):
         data = request.data
         data["user"] = request.user.id

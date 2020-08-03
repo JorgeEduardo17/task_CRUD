@@ -40,12 +40,12 @@ class PrivateTaskUserAPIViewTestCase(TestCase):
         self.task_2 = mock_task(name="task_2", user=self.user_1)
 
         self.user_2 = mock_user_profile(email="test_2@gmail.com")
-        self.task_3 = mock_task(name="task_3", user=self.user_2)
-        self.task_4 = mock_task(name="task_4", user=self.user_2)
-        self.task_5 = mock_task(name="task_5", user=self.user_2)
-        self.task_6 = mock_task(name="task_6", user=self.user_2)
-        self.task_7 = mock_task(name="task_7", user=self.user_2)
-        self.task_8 = mock_task(name="task_8", user=self.user_2)
+        self.task_3 = mock_task(name="task_3", description="oper", user=self.user_2)
+        self.task_4 = mock_task(name="task_4", description="oper", user=self.user_2)
+        self.task_5 = mock_task(name="task_5", description="onboarding", user=self.user_2)
+        self.task_6 = mock_task(name="task_6", description="onboarding", user=self.user_2)
+        self.task_7 = mock_task(name="task_7", description="operation", user=self.user_2)
+        self.task_8 = mock_task(name="task_8", description="operation", user=self.user_2)
 
         self.client.force_authenticate(self.user_1)
 
@@ -61,6 +61,22 @@ class PrivateTaskUserAPIViewTestCase(TestCase):
         self.assertEqual(res.data["count"], 8)
         response_data = res.json()["results"]
         self.assertEqual(len(response_data), 5)
+
+    def test_get_list_task_successfully_with_filter(self):
+        """Test that return successfully list task filter querystring"""
+        url = TASK_LIST_CREATE_URL
+        url += "?search=oper"
+
+        res = self.client.get(url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("count", res.data)
+        self.assertIn("next", res.data)
+        self.assertIn("previous", res.data)
+        self.assertIn("results", res.data)
+        self.assertEqual(res.data["count"], 4)
+        response_data = res.json()["results"]
+        self.assertEqual(len(response_data), 4)
 
     def test_create_task_successfully(self):
         """Test that creates a task and is assigned by the registered user"""
