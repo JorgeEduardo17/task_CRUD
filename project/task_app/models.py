@@ -6,7 +6,6 @@ class TaskUser(models.Model):
 
     name = models.CharField(
         max_length=100,
-
     )
 
     user = models.ForeignKey(
@@ -16,8 +15,6 @@ class TaskUser(models.Model):
 
     description = models.CharField(
         max_length=250,
-        blank=True,
-        null=True
     )
 
     date = models.DateTimeField(

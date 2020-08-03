@@ -38,14 +38,25 @@ class PrivateTaskUserAPIViewTestCase(TestCase):
         self.user_2 = mock_user_profile(email="test_2@gmail.com")
         self.task_3 = mock_task(name="task_3", user=self.user_2)
         self.task_4 = mock_task(name="task_4", user=self.user_2)
+        self.task_5 = mock_task(name="task_5", user=self.user_2)
+        self.task_6 = mock_task(name="task_6", user=self.user_2)
+        self.task_7 = mock_task(name="task_7", user=self.user_2)
+        self.task_8 = mock_task(name="task_8", user=self.user_2)
 
         self.client.force_authenticate(self.user_1)
 
     def test_get_list_task_successfully(self):
-        """Test that return successfully list task"""
+        """Test that return successfully list task (pagination is the 5)"""
         res = self.client.get(TASK_LIST_CREATE_URL)
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 4)
+        self.assertIn("count", res.data)
+        self.assertIn("next", res.data)
+        self.assertIn("previous", res.data)
+        self.assertIn("results", res.data)
+        self.assertEqual(res.data["count"], 8)
+        response_data = res.json()["results"]
+        self.assertEqual(len(response_data), 5)
 
     def test_create_task_successfully(self):
         """Test that creates a task and is assigned by the registered user"""
@@ -54,7 +65,7 @@ class PrivateTaskUserAPIViewTestCase(TestCase):
             "description": "description_test",
         }
 
-        res = self.client.post(TASK_LIST_CREATE_URL, data=data, format='json')
+        res = self.client.post(TASK_LIST_CREATE_URL, data=data, format="json")
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertIn("user", res.data)

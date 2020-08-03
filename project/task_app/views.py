@@ -1,10 +1,11 @@
 from rest_framework import generics
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from task_app.permission import IsUserOwnerTAskAuthenticated
-from rest_framework.authentication import TokenAuthentication
 
+from task_app.pagination import TasPagination
+from task_app.permission import IsUserOwnerTAskAuthenticated
 from .models import TaskUser
 from .serializers import TaskSerializer
 
@@ -15,6 +16,7 @@ class TaskAPIView(generics.ListCreateAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [TokenAuthentication, ]
+    pagination_class = TasPagination
 
     def create(self, request, *args, **kwargs):
         data = request.data
